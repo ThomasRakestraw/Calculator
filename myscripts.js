@@ -1,182 +1,93 @@
-html {
-box-sizing: border-box;
+const calculate = (n1, operator, n2) => {
+let result = ''
+if (operator === 'add') {
+result = parseFloat(n1) + parseFloat(n2)
+} else if (operator === 'subtract') {
+result = parseFloat(n1) - parseFloat(n2)
+} else if (operator === 'multiply') {
+result = parseFloat(n1) * parseFloat(n2)
+} else if (operator === 'divide') {
+result = parseFloat(n1) / parseFloat(n2)
 }
 
-*,
-*::before,
-*::after {
-box-sizing: inherit;
+return result
 }
 
-body {
-margin: 0;
+const calculator = document.querySelector('.calculator')
+const display = calculator.querySelector('.calculator__display')
+const keys = calculator.querySelector('.calculator__keys')
+
+keys.addEventListener('click', e => {
+if (e.target.matches('button')) {
+const key = e.target
+const action = key.dataset.action
+const keyContent = key.textContent
+const displayedNum = display.textContent
+const previousKeyType = calculator.dataset.previousKeyType
+
+Array.from(key.parentNode.children)
+.forEach(k => k.classList.remove('is-depressed'))
+
+if (!action) {
+if (displayedNum === '0' || previousKeyType === 'operator') {
+display.textContent = keyContent
+} else {
+display.textContent = displayedNum + keyContent
+}
+calculator.dataset.previouskeyType = "number"
 }
 
-/* Responsive Images */
-
-embed,
-iframe,
-img,
-object,
-video {
-max-width: 100%;
+if (action === 'decimal') {
+if(!displayedNum.includes(".")){
+display.textContent = displayedNum + '.'}
+  else if(previousKeyType === "operator" || previousKeyType === "calculate"){
+  display.textContent = "0"
+  }
+  calculator.datset.previousKeyType = "decimal"
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-ul,
-ol,
-li,
-p,
-pre,
-blockquote,
-figure,
-hr {
-margin: 0;
-padding-right: 0;
-padding-left: 0;
+if (action === 'add' || action === 'subtract' || action === 'multiply' || action === 'divide') {
+  const firstValue = calculator.dataset.firstValue
+  const operator = calculator.dataset.operator
+  const secondValue = displayedNum
+  
+  if(firstValue && operator && previousKeyType !== "operator"){
+    const calcValue = calculate(firstValue, operator, secondValue)
+   display.textContent = calcValue
+   calculator.dataset.firstValue = calcValue
+}else{
+  calculator.dataset.firstValue = displayedNum
+}
+  
+key.classList.add('is-depressed')
+calculator.dataset.previousKeyType = 'operator'
+calculator.dataset.operator = action
 }
 
-a {
-text-decoration: none;
+if (action === 'clear') {
+console.log('clear key!')
+  calculator.dataset.firstValue = ""
+  calculator.dataset.modValue = ""
+  calculator.dataset.operator = ""
+  calculator.dataset.previousKeyType = ""
+
+  display.textContent = 0
+  calculator.datset.previousKeyType = "clear"
 }
 
-a:focus {
-outline: none;
+if (action === 'calculate'){
+let firstValue = calculator.dataset.firstValue
+const operator = calculator.dataset.operator
+let secondValue = displayedNum
+if(firstValue){
+  if(previousKeyType === "calculate"){
+    firstValue = displayedNum
+    secondValue = calculator.dataset.modValue
+  }
+display.textContent = calculate(firstValue, operator, secondValue)
+  }
+  calculator.dataset.modValue = secondValue
+calculator.datset.previousKeyType = "calculate"
 }
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-display: block;
 }
-
-/* Removes all decimals and discs from lists */
-
-ol,
-ul {
-list-style: none;
-}
-
-/*
-* Completely resets form items
-* ----------------------------
-* Super hard reset that removes all borders
-* and radiuses of all form items (including
-* checkboxes and radios)
-*/
-
-input,
-textarea,
-button {
-border: 0;
-border-radius: 0;
-background-color: transparent;
-font-size: inherit;
-font-family: inherit;
-font-weight: inherit;
-outline: none;
-appearance: none;
-text-align: left;
-}
-
-input:hover,
-input:active,
-input:focus,
-textarea:hover,
-textarea:active,
-textarea:focus,
-button:hover,
-button:active,
-button:focus {
-outline: none;
-}
-
-:root {
-font-family: Helvetica, Arial, sans-serif;
-}
-
-html {
-font-size: 175%;
-font-weight: 300;
-line-height: 1.3;
-}
-
-body {
-align-items: center;
-background-image: linear-gradient(236deg, #74ebd5, #acb6e5);
-display: flex;
-height: 100vh;
-justify-content: center;
-}
-
-.container {
-max-width: 20em;
-}
-
-.container > p {
-text-align: center;
-}
-
-.calculator {
-border-radius: 12px;
-box-shadow: 0 0 40px 0px rgba(0, 0, 0, 0.15);
-margin-left: auto;
-margin-right: auto;
-margin-top: 2em;
-max-width: 15em;
-overflow: hidden;
-}
-
-.calculator__display {
-background-color: #222222;
-color: #fff;
-font-size: 1.714285714em;
-padding: 0.5em 0.75em;
-text-align: right;
-}
-
-.calculator__keys {
-background-color: #999;
-display: grid;
-grid-gap: 1px;
-grid-template-columns: repeat(4, 1fr);
-}
-
-.calculator__keys > * {
-background-color: #fff;
-padding: 0.5em 1.25em;
-position: relative;
-text-align: center;
-}
-
-.calculator__keys > *:active::before,
-.calculator__keys > .is-depressed::before {
-background-color: rgba(0, 0, 0, 0.2);
-bottom: 0;
-box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.5) inset;
-content: "";
-left: 0;
-opacity: 0.3;
-position: absolute;
-right: 0;
-top: 0;
-z-index: 1;
-}
-
-.key--operator {
-background-color: #eee;
-}
-
-.key--equal {
-background-image: linear-gradient(to bottom, #fe886a, #ff7033);
-grid-column: -2;
-grid-row: 2 / span 4;
-}
+})
